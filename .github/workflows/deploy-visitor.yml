@@ -28,7 +28,7 @@ jobs:
       - run: npm install
       - run: npm run build
         env:
-          VITE_API_BASE: ${{ secrets.VITE_API_BASE || 'https://auctionbid-production.up.railway.app/api' }}
+          VITE_API_BASE: https://auctionbid-production.up.railway.app/api
           VITE_BASE_PATH: /AuctionBid/visitor/
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
