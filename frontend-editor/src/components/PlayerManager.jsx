@@ -21,6 +21,22 @@ export default function PlayerManager({ token }) {
   const [batchLoading, setBatchLoading] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState("");
+  const initialNewPlayer = {
+    player: "",
+    team_out: "",
+    age: "",
+    ca: "",
+    pa: "",
+    position: "",
+    secondary_position: "",
+    height: "",
+    weight: "",
+    min_price: "",
+    max_price: ""
+  };
+  const [showCreate, setShowCreate] = useState(false);
+  const [newPlayer, setNewPlayer] = useState(initialNewPlayer);
+  const [createLoading, setCreateLoading] = useState(false);
 
   useEffect(() => {
     loadPlayers();
@@ -147,32 +163,58 @@ export default function PlayerManager({ token }) {
     }
   };
 
-  const handleCreate = async () => {
-    const newPlayer = {
-      player: "",
-      team_out: "",
-      age: 0,
-      ca: 0,
-      pa: 0,
-      position: "",
-      secondary_position: "",
-      height: "",
-      weight: "",
-      min_price: 0,
-      max_price: 0
-    };
-    try {
-      const created = await createPlayer(token, newPlayer);
-      loadPlayers();
-      handleEdit(created);
-    } catch (err) {
-      alert(err.response?.data?.message || "创建失败");
-    }
-  };
-
   const handleViewHistory = (player) => {
     setSelectedPlayerId(player.id);
     setSelectedPlayerName(player.player);
+  };
+
+  const handleCreateSubmit = async () => {
+    const requiredFields = ["player", "team_out", "age", "ca", "pa", "position", "min_price", "max_price"];
+    for (const field of requiredFields) {
+      if (newPlayer[field] === "" || newPlayer[field] === null || newPlayer[field] === undefined) {
+        alert("请填写所有必填字段");
+        return;
+      }
+    }
+
+    const age = Number(newPlayer.age);
+    const ca = Number(newPlayer.ca);
+    const pa = Number(newPlayer.pa);
+    const min_price = Number(newPlayer.min_price);
+    const max_price = Number(newPlayer.max_price);
+
+    if (![age, ca, pa, min_price, max_price].every(Number.isInteger)) {
+      alert("年龄、CA、PA、价格必须为整数");
+      return;
+    }
+    if (min_price < 0 || max_price < 0 || min_price > max_price) {
+      alert("价格无效：最低价需小于等于最高价，且均为非负数");
+      return;
+    }
+
+    setCreateLoading(true);
+    try {
+      await createPlayer(token, {
+        player: newPlayer.player,
+        team_out: newPlayer.team_out,
+        age,
+        ca,
+        pa,
+        position: newPlayer.position,
+        secondary_position: newPlayer.secondary_position || "",
+        height: newPlayer.height || "",
+        weight: newPlayer.weight || "",
+        min_price,
+        max_price
+      });
+      setShowCreate(false);
+      setNewPlayer(initialNewPlayer);
+      loadPlayers();
+    } catch (err) {
+      alert(err.response?.data?.message || "创建失败");
+    } finally {
+      setCreateLoading(false);
+    }
   };
 
   const totalPages = Math.ceil(total / 20);
@@ -182,12 +224,140 @@ export default function PlayerManager({ token }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h1>球员管理</h1>
         <div style={{ display: "flex", gap: "10px" }}>
-          <button onClick={handleCreate}>新建球员</button>
+          <button onClick={() => setShowCreate(!showCreate)}>
+            {showCreate ? "取消新建" : "新建球员"}
+          </button>
           <button onClick={() => setShowBatchImport(!showBatchImport)}>
             {showBatchImport ? "取消批量导入" : "批量导入"}
           </button>
         </div>
       </div>
+
+      {showCreate && (
+        <div style={{ marginBottom: "20px", padding: "15px", backgroundColor: "#f9f9f9", borderRadius: "4px" }}>
+          <h3>新建球员</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px" }}>
+            <div>
+              <label style={{ fontWeight: "bold" }}>球员名*</label>
+              <input
+                type="text"
+                value={newPlayer.player}
+                onChange={(e) => setNewPlayer({ ...newPlayer, player: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>转出球队*</label>
+              <input
+                type="text"
+                value={newPlayer.team_out}
+                onChange={(e) => setNewPlayer({ ...newPlayer, team_out: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>年龄*</label>
+              <input
+                type="number"
+                value={newPlayer.age}
+                onChange={(e) => setNewPlayer({ ...newPlayer, age: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>CA*</label>
+              <input
+                type="number"
+                value={newPlayer.ca}
+                onChange={(e) => setNewPlayer({ ...newPlayer, ca: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>PA*</label>
+              <input
+                type="number"
+                value={newPlayer.pa}
+                onChange={(e) => setNewPlayer({ ...newPlayer, pa: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>位置*</label>
+              <input
+                type="text"
+                value={newPlayer.position}
+                onChange={(e) => setNewPlayer({ ...newPlayer, position: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>次要位置</label>
+              <input
+                type="text"
+                value={newPlayer.secondary_position}
+                onChange={(e) => setNewPlayer({ ...newPlayer, secondary_position: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>身高</label>
+              <input
+                type="text"
+                value={newPlayer.height}
+                onChange={(e) => setNewPlayer({ ...newPlayer, height: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>体重</label>
+              <input
+                type="text"
+                value={newPlayer.weight}
+                onChange={(e) => setNewPlayer({ ...newPlayer, weight: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>最低价格*</label>
+              <input
+                type="number"
+                value={newPlayer.min_price}
+                onChange={(e) => setNewPlayer({ ...newPlayer, min_price: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+                min="0"
+                step="1"
+              />
+            </div>
+            <div>
+              <label style={{ fontWeight: "bold" }}>最高价格*</label>
+              <input
+                type="number"
+                value={newPlayer.max_price}
+                onChange={(e) => setNewPlayer({ ...newPlayer, max_price: e.target.value })}
+                style={{ width: "100%", padding: "5px" }}
+                min="0"
+                step="1"
+              />
+            </div>
+          </div>
+          <div style={{ marginTop: "10px" }}>
+            <button onClick={handleCreateSubmit} disabled={createLoading} style={{ marginRight: "10px" }}>
+              {createLoading ? "创建中..." : "创建"}
+            </button>
+            <button
+              onClick={() => {
+                setShowCreate(false);
+                setNewPlayer(initialNewPlayer);
+              }}
+              disabled={createLoading}
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {showBatchImport && (
         <div style={{ marginBottom: "20px", padding: "15px", backgroundColor: "#f9f9f9", borderRadius: "4px" }}>
