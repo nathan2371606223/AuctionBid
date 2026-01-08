@@ -9,7 +9,7 @@ export default function PlayerList() {
   const [loading, setLoading] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const pageSize = 20;
+  const pageSize = 50;
 
   useEffect(() => {
     loadPlayers();

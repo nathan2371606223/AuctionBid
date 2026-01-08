@@ -49,9 +49,18 @@ export default function TeamSelector({ teamsByLevel, loading, value, onChange })
       <select
         value={selectedLevel}
         onChange={(e) => handleLevelChange(e.target.value)}
-        style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
+        style={{
+          width: "100%",
+          padding: "8px",
+          marginBottom: "8px",
+          touchAction: "manipulation",
+          WebkitAppearance: "menulist-button"
+        }}
+        aria-label="选择级别"
       >
-        <option value="">选择级别</option>
+        <option value="" disabled>
+          请选择级别
+        </option>
         <option value="1">级别 1</option>
         <option value="2">级别 2</option>
         <option value="3">级别 3</option>
@@ -60,7 +69,13 @@ export default function TeamSelector({ teamsByLevel, loading, value, onChange })
         value={selectedTeam}
         onChange={(e) => handleTeamChange(e.target.value)}
         disabled={!selectedLevel}
-        style={{ width: "100%", padding: "5px" }}
+        style={{
+          width: "100%",
+          padding: "8px",
+          touchAction: "manipulation",
+          WebkitAppearance: "menulist-button"
+        }}
+        aria-label="选择球队"
       >
         <option value="">选择球队</option>
         {availableTeams.map((team) => (
