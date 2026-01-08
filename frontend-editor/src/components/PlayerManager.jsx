@@ -45,7 +45,7 @@ export default function PlayerManager({ token }) {
   const loadPlayers = async () => {
     setLoading(true);
     try {
-      const result = await fetchPlayers(token, page, 20);
+      const result = await fetchPlayers(token, page, 50);
       setPlayers(result.data || []);
       setTotal(result.total || 0);
     } catch (err) {
@@ -218,7 +218,7 @@ export default function PlayerManager({ token }) {
     }
   };
 
-  const totalPages = Math.ceil(total / 20);
+  const totalPages = Math.ceil(total / 50);
 
   return (
     <div style={{ padding: "20px", maxWidth: "1600px", margin: "0 auto" }}>
