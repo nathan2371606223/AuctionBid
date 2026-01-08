@@ -126,9 +126,10 @@ export default function PlayerManager({ token }) {
       const line = lines[i].trim();
       if (!line) continue;
 
-      const parts = line.split(",").map((p) => p.trim());
+      // Tab-separated values only (avoid commas to prevent data conflicts)
+      const parts = line.split("\t").map((p) => p.trim());
       if (parts.length < 11) {
-        alert(`第 ${i + 1} 行数据格式错误：需要11个字段`);
+        alert(`第 ${i + 1} 行数据格式错误：需要11个字段，且必须使用Tab分隔`);
         return;
       }
 
@@ -363,14 +364,15 @@ export default function PlayerManager({ token }) {
         <div style={{ marginBottom: "20px", padding: "15px", backgroundColor: "#f9f9f9", borderRadius: "4px" }}>
           <h3>批量导入/更新</h3>
           <p style={{ fontSize: "12px", color: "#666" }}>
-            格式：每行一个球员，字段用逗号分隔：球员名,转出球队,年龄,CA,PA,位置,次要位置,身高,体重,最低价格,最高价格
+            格式：每行一个球员，字段用「制表符」分隔（Tab），不要使用逗号：
+            球员名[TAB]转出球队[TAB]年龄[TAB]CA[TAB]PA[TAB]位置[TAB]次要位置[TAB]身高[TAB]体重[TAB]最低价格[TAB]最高价格
             <br />
             如果球员名已存在则更新，否则创建新记录
           </p>
           <textarea
             value={batchText}
             onChange={(e) => setBatchText(e.target.value)}
-            placeholder="球员名,转出球队,年龄,CA,PA,位置,次要位置,身高,体重,最低价格,最高价格"
+            placeholder="球员名[TAB]转出球队[TAB]年龄[TAB]CA[TAB]PA[TAB]位置[TAB]次要位置[TAB]身高[TAB]体重[TAB]最低价格[TAB]最高价格"
             style={{ width: "100%", minHeight: "150px", padding: "5px", fontFamily: "monospace" }}
           />
           <div style={{ marginTop: "10px" }}>
