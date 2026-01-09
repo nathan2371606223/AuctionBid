@@ -1,12 +1,12 @@
 const express = require("express");
 const { pool } = require("../db/connection");
 const { authMiddleware } = require("../middleware/auth");
-const { requireTeamToken } = require("../middleware/teamToken");
+const { optionalAuth } = require("../middleware/teamToken");
 
 const router = express.Router();
 
-// Get all players with pagination (requires team token)
-router.get("/", requireTeamToken, async (req, res) => {
+// Get all players with pagination (accepts JWT for editors or team token for visitors)
+router.get("/", optionalAuth, async (req, res) => {
   const { page = 1, pageSize = 50 } = req.query;
   const pageNum = Number(page);
   const sizeNum = Number(pageSize);

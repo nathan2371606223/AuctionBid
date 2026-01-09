@@ -1,4 +1,5 @@
 const { pool } = require("../db/connection");
+const jwt = require("jsonwebtoken");
 
 async function requireTeamToken(req, res, next) {
   const token =
@@ -33,4 +34,54 @@ async function requireTeamToken(req, res, next) {
   }
 }
 
-module.exports = { requireTeamToken };
+// Optional auth: accepts either JWT (for editors) or team token (for visitors)
+async function optionalAuth(req, res, next) {
+  // Check for JWT token first (editor authentication)
+  const authHeader = req.headers.authorization || "";
+  const jwtToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
+  
+  if (jwtToken) {
+    try {
+      const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
+      jwt.verify(jwtToken, JWT_SECRET);
+      // JWT is valid, proceed without team token
+      return next();
+    } catch (err) {
+      // JWT invalid, fall through to check team token
+    }
+  }
+
+  // Check for team token (visitor authentication)
+  const teamToken =
+    req.headers["x-team-token"] ||
+    req.query?.token ||
+    (typeof req.body === "object" ? req.body.token : null);
+
+  if (teamToken) {
+    try {
+      const { rows } = await pool.query(
+        `SELECT tt.team_id, tt.token, t.team_name 
+         FROM lb_team_tokens tt 
+         JOIN lb_teams t ON t.id = tt.team_id 
+         WHERE tt.token = $1 AND tt.active = true`,
+        [teamToken]
+      );
+      if (rows.length) {
+        req.tokenTeam = {
+          id: rows[0].team_id,
+          name: rows[0].team_name,
+          token: rows[0].token
+        };
+        return next();
+      }
+    } catch (err) {
+      console.error("Team token validation failed:", err);
+    }
+  }
+
+  // Neither token is valid, but allow access for read operations
+  // (This makes the route public for reading, but still validates tokens if provided)
+  return next();
+}
+
+module.exports = { requireTeamToken, optionalAuth };
