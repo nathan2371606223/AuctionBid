@@ -5,6 +5,7 @@ import PlayerManager from "./components/PlayerManager";
 import ExportButtons from "./components/ExportButtons";
 import TokenAlerts from "./components/TokenAlerts";
 import Announcement from "./components/Announcement";
+import DeadlineManager from "./components/DeadlineManager";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -125,6 +126,7 @@ function App() {
       </div>
 
       <Announcement token={token} />
+      <DeadlineManager token={token} />
       {showChangePassword ? (
         <ChangePassword token={token} onClose={() => setShowChangePassword(false)} />
       ) : activeTab === "players" ? (

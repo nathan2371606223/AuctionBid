@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import PlayerList from "./components/PlayerList";
 import TokenGate from "./components/TokenGate";
 import Announcement from "./components/Announcement";
+import Countdown from "./components/Countdown";
 import { getStoredToken, setStoredToken } from "./services/api";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
       <Announcement />
+      <Countdown />
       <div
         style={{
           backgroundColor: "#333",

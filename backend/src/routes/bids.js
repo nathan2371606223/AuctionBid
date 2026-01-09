@@ -62,6 +62,21 @@ router.get("/history/:playerId", authMiddleware, async (req, res) => {
 
 // Submit bid (requires token)
 router.post("/:playerId", requireTeamToken, async (req, res) => {
+  // Check if deadline has passed
+  try {
+    const { rows: deadlineRows } = await pool.query("SELECT deadline FROM ab_auction_deadline ORDER BY id DESC LIMIT 1");
+    if (deadlineRows.length > 0 && deadlineRows[0].deadline) {
+      const deadline = new Date(deadlineRows[0].deadline);
+      const now = new Date();
+      if (now >= deadline) {
+        return res.status(403).json({ message: "拍卖已截止，无法继续出价" });
+      }
+    }
+  } catch (err) {
+    console.error("Error checking deadline:", err);
+    // Continue if deadline check fails
+  }
+
   const playerId = Number(req.params.playerId);
   const { bid_team, bid_price } = req.body || {};
 

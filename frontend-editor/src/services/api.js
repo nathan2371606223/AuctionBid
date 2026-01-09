@@ -116,3 +116,18 @@ export async function updateAnnouncement(token, content) {
   });
   return res.data;
 }
+
+// Deadline
+export async function fetchDeadline(token) {
+  const res = await axios.get(`${API_BASE}/deadline`, {
+    headers: authHeaders(token)
+  });
+  return res.data;
+}
+
+export async function setDeadline(token, deadline) {
+  const res = await axios.put(`${API_BASE}/deadline`, { deadline }, {
+    headers: authHeaders(token)
+  });
+  return res.data;
+}

@@ -134,6 +134,22 @@ async function runMigrations() {
     await pool.query("INSERT INTO ab_announcement (content) VALUES ('')");
   }
 
+  // Create auction deadline table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS ab_auction_deadline (
+      id SERIAL PRIMARY KEY,
+      deadline TIMESTAMP WITH TIME ZONE,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+  `);
+
+  // Initialize with no deadline if none exists
+  const { rows: existingDeadline } = await pool.query("SELECT id FROM ab_auction_deadline LIMIT 1");
+  if (existingDeadline.length === 0) {
+    await pool.query("INSERT INTO ab_auction_deadline (deadline) VALUES (NULL)");
+  }
+
   console.log("✓ Database migrations completed");
 }
 

@@ -57,3 +57,8 @@ export async function fetchAnnouncement() {
   const res = await client.get(`/announcement`);
   return res.data;
 }
+
+export async function fetchDeadline() {
+  const res = await client.get(`/deadline`);
+  return res.data;
+}
