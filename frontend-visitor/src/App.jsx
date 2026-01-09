@@ -28,6 +28,32 @@ function App() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
+      <div
+        style={{
+          backgroundColor: "#333",
+          color: "white",
+          padding: "10px 20px",
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center"
+        }}
+      >
+        <a
+          href={import.meta.env.VITE_LEAGUE_BUDGET_VISITOR_URL || "https://nathan2371606223.github.io/LeagueBudget/visitor"}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: "white",
+            textDecoration: "none",
+            padding: "5px 10px",
+            border: "1px solid white",
+            borderRadius: "4px",
+            fontSize: "14px"
+          }}
+        >
+          联赛预算
+        </a>
+      </div>
       <PlayerList onAuthError={() => setTokenReady(false)} />
     </div>
   );

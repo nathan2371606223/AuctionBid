@@ -77,9 +77,8 @@ async function optionalAuth(req, res, next) {
     }
   }
 
-  // Neither token is valid, but allow access for read operations
-  // (This makes the route public for reading, but still validates tokens if provided)
-  return next();
+  // Neither token is valid, require team token for visitors
+  return res.status(401).json({ message: "需要令牌才能访问" });
 }
 
 module.exports = { requireTeamToken, optionalAuth };

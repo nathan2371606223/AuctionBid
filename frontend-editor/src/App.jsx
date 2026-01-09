@@ -80,7 +80,22 @@ function App() {
             令牌提醒
           </button>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <a
+            href={import.meta.env.VITE_LEAGUE_BUDGET_EDITOR_URL || "https://nathan2371606223.github.io/LeagueBudget/editor"}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "white",
+              textDecoration: "none",
+              padding: "5px 10px",
+              border: "1px solid white",
+              borderRadius: "4px",
+              fontSize: "14px"
+            }}
+          >
+            联赛预算
+          </a>
           <button
             onClick={() => setShowChangePassword(true)}
             style={{
