@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PlayerList from "./components/PlayerList";
 import TokenGate from "./components/TokenGate";
+import Announcement from "./components/Announcement";
 import { getStoredToken, setStoredToken } from "./services/api";
 
 function App() {
