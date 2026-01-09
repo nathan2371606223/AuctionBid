@@ -119,10 +119,10 @@ export default function DeadlineManager({ token }) {
         </div>
       </div>
       
-      {deadlineState && (
+      {deadline && (
         <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "#fff", borderRadius: "4px" }}>
           <div style={{ fontSize: "14px", color: "#666" }}>
-            当前截止时间: {deadlineState.toLocaleString("zh-CN", { 
+            当前截止时间: {deadline.toLocaleString("zh-CN", { 
               year: "numeric", 
               month: "2-digit", 
               day: "2-digit", 
@@ -171,7 +171,7 @@ export default function DeadlineManager({ token }) {
         >
           {saving ? "设置中..." : "设置截止时间"}
         </button>
-        {deadlineState && (
+        {deadline && (
           <button
             onClick={handleClearDeadline}
             disabled={saving}
