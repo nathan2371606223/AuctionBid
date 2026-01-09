@@ -142,12 +142,13 @@ router.post("/:playerId", requireTeamToken, async (req, res) => {
       ].filter(Boolean);
       const matched = involvedTeams.some((t) => t === tokenTeamName);
       if (!matched) {
+        const teamName = tokenTeamName || "未知团队";
         await createTokenAlert(
           pool,
           req.tokenTeam,
           "auctionbid",
           { player_id: playerId, bid_team, bid_price },
-          "提交中未匹配到与令牌对应的球队"
+          `令牌对应的球队 (${teamName}) 未在提交中出现`
         );
       }
     } catch (err) {
