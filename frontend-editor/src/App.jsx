@@ -6,6 +6,7 @@ import ExportButtons from "./components/ExportButtons";
 import TokenAlerts from "./components/TokenAlerts";
 import Announcement from "./components/Announcement";
 import DeadlineManager from "./components/DeadlineManager";
+import { setTokenExpiredHandler } from "./services/api";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -17,6 +18,15 @@ function App() {
     if (savedToken) {
       setToken(savedToken);
     }
+    
+    // Set up token expiration handler
+    setTokenExpiredHandler(() => {
+      setToken(null);
+    });
+    
+    return () => {
+      setTokenExpiredHandler(null);
+    };
   }, []);
 
   const handleLogin = (newToken) => {
