@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import TeamSelector from "./TeamSelector";
 import { submitBid, fetchTeams } from "../services/api";
 
-export default function BidModal({ player, isOpen, onClose, onBidSuccess }) {
+export default function BidModal({ player, isOpen, onClose, onBidSuccess, onAuthError }) {
   const [bidTeam, setBidTeam] = useState("");
   const [bidPrice, setBidPrice] = useState("");
   const [teamsByLevel, setTeamsByLevel] = useState({});
@@ -23,6 +23,11 @@ export default function BidModal({ player, isOpen, onClose, onBidSuccess }) {
       setTeamsByLevel(data);
     } catch (err) {
       console.error("Failed to load teams", err);
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        onAuthError && onAuthError();
+      } else {
+        setMessage({ type: "error", text: "加载球队失败" });
+      }
     } finally {
       setLoadingTeams(false);
     }
@@ -56,8 +61,12 @@ export default function BidModal({ player, isOpen, onClose, onBidSuccess }) {
         setMessage({ type: "error", text: result.message || "出价失败" });
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || "出价失败";
-      setMessage({ type: "error", text: errorMsg });
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        onAuthError && onAuthError();
+      } else {
+        const errorMsg = err.response?.data?.message || err.message || "出价失败";
+        setMessage({ type: "error", text: errorMsg });
+      }
     } finally {
       setSubmitting(false);
     }

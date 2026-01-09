@@ -1,11 +1,13 @@
 const express = require("express");
 const { pool } = require("../db/connection");
 const { authMiddleware } = require("../middleware/auth");
+const { requireTeamToken } = require("../middleware/teamToken");
+const { createTokenAlert } = require("../utils/tokenAlerts");
 
 const router = express.Router();
 
-// Get latest bid for all players (public)
-router.get("/latest", async (req, res) => {
+// Get latest bid for all players (requires token)
+router.get("/latest", requireTeamToken, async (req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT p.*, 
@@ -58,8 +60,8 @@ router.get("/history/:playerId", authMiddleware, async (req, res) => {
   }
 });
 
-// Submit bid (public)
-router.post("/:playerId", async (req, res) => {
+// Submit bid (requires token)
+router.post("/:playerId", requireTeamToken, async (req, res) => {
   const playerId = Number(req.params.playerId);
   const { bid_team, bid_price } = req.body || {};
 
@@ -130,6 +132,27 @@ router.post("/:playerId", async (req, res) => {
 
     // Fetch updated player data
     const { rows: updatedPlayer } = await client.query("SELECT * FROM ab_players WHERE id=$1", [playerId]);
+
+    // Create alert if token team not present in payload
+    try {
+      const tokenTeamName = req.tokenTeam?.name || "";
+      const involvedTeams = [
+        bid_team,
+        updatedPlayer[0]?.team_out
+      ].filter(Boolean);
+      const matched = involvedTeams.some((t) => t === tokenTeamName);
+      if (!matched) {
+        await createTokenAlert(
+          pool,
+          req.tokenTeam,
+          "auctionbid",
+          { player_id: playerId, bid_team, bid_price },
+          "提交中未匹配到与令牌对应的球队"
+        );
+      }
+    } catch (err) {
+      console.error("Alert creation failed:", err);
+    }
 
     return res.json({
       success: true,

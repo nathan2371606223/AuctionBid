@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchPlayers } from "../services/api";
 import BidModal from "./BidModal";
 
-export default function PlayerList() {
+export default function PlayerList({ onAuthError }) {
   const [players, setPlayers] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -23,7 +23,11 @@ export default function PlayerList() {
       setTotal(result.total || 0);
     } catch (err) {
       console.error("Failed to load players", err);
-      alert("加载球员列表失败");
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        onAuthError && onAuthError();
+      } else {
+        alert("加载球员列表失败");
+      }
     } finally {
       setLoading(false);
     }
@@ -147,6 +151,7 @@ export default function PlayerList() {
             setSelectedPlayer(null);
           }}
           onBidSuccess={handleBidSuccess}
+          onAuthError={onAuthError}
         />
       )}
     </div>

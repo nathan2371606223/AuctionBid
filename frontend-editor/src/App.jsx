@@ -3,6 +3,7 @@ import Login from "./components/Login";
 import ChangePassword from "./components/ChangePassword";
 import PlayerManager from "./components/PlayerManager";
 import ExportButtons from "./components/ExportButtons";
+import TokenAlerts from "./components/TokenAlerts";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -66,6 +67,18 @@ function App() {
           >
             导出数据
           </button>
+          <button
+            onClick={() => setActiveTab("alerts")}
+            style={{
+              backgroundColor: activeTab === "alerts" ? "#555" : "transparent",
+              color: "white",
+              border: "none",
+              padding: "5px 15px",
+              cursor: "pointer"
+            }}
+          >
+            令牌提醒
+          </button>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
           <button
@@ -99,8 +112,10 @@ function App() {
         <ChangePassword token={token} onClose={() => setShowChangePassword(false)} />
       ) : activeTab === "players" ? (
         <PlayerManager token={token} />
-      ) : (
+      ) : activeTab === "export" ? (
         <ExportButtons token={token} />
+      ) : (
+        <TokenAlerts token={token} />
       )}
     </div>
   );

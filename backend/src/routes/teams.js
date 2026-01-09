@@ -1,10 +1,11 @@
 const express = require("express");
 const { pool } = require("../db/connection");
+const { requireTeamToken } = require("../middleware/teamToken");
 
 const router = express.Router();
 
 // Get teams grouped by level from lb_teams table
-router.get("/", async (req, res) => {
+router.get("/", requireTeamToken, async (req, res) => {
   try {
     const { rows } = await pool.query(
       "SELECT id, level, team_name, position_order FROM lb_teams ORDER BY level ASC, position_order ASC"

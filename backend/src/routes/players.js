@@ -1,11 +1,12 @@
 const express = require("express");
 const { pool } = require("../db/connection");
 const { authMiddleware } = require("../middleware/auth");
+const { requireTeamToken } = require("../middleware/teamToken");
 
 const router = express.Router();
 
-// Get all players with pagination (public)
-router.get("/", async (req, res) => {
+// Get all players with pagination (requires team token)
+router.get("/", requireTeamToken, async (req, res) => {
   const { page = 1, pageSize = 50 } = req.query;
   const pageNum = Number(page);
   const sizeNum = Number(pageSize);
