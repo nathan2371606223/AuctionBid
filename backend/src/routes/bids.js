@@ -123,9 +123,9 @@ router.post("/:playerId", requireTeamToken, async (req, res) => {
       return res.status(400).json({ message: `出价不能超过最高价格 ${player.max_price}` });
     }
 
-    if (player.current_bid_price !== null && bid_price < player.current_bid_price) {
+    if (player.current_bid_price !== null && bid_price <= player.current_bid_price) {
       await client.query("ROLLBACK");
-      return res.status(400).json({ message: `出价不能低于当前最高出价 ${player.current_bid_price}` });
+      return res.status(400).json({ message: `出价必须高于当前最高出价 ${player.current_bid_price}` });
     }
 
     // Update player's current bid
