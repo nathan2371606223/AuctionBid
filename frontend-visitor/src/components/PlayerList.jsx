@@ -1,40 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { fetchPlayers, fetchDeadline } from "../services/api";
+import { fetchPlayers } from "../services/api";
 import BidModal from "./BidModal";
 
-export default function PlayerList({ onAuthError }) {
+export default function PlayerList({ onAuthError, auctionExpired }) {
   const [players, setPlayers] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deadlineExpired, setDeadlineExpired] = useState(false);
   const pageSize = 50;
 
   useEffect(() => {
     loadPlayers();
-    checkDeadline();
-    // Check deadline every 5 seconds to update button states
-    const interval = setInterval(checkDeadline, 5000);
-    return () => clearInterval(interval);
   }, [page]);
-
-  const checkDeadline = async () => {
-    try {
-      const data = await fetchDeadline();
-      if (data.deadline) {
-        const deadline = new Date(data.deadline);
-        const now = new Date();
-        setDeadlineExpired(now >= deadline);
-      } else {
-        setDeadlineExpired(false);
-      }
-    } catch (err) {
-      console.error("Failed to check deadline:", err);
-      setDeadlineExpired(false);
-    }
-  };
 
   const loadPlayers = async () => {
     setLoading(true);
@@ -62,6 +41,7 @@ export default function PlayerList({ onAuthError }) {
   const handleBidSuccess = () => {
     // Refresh players list after successful bid
     loadPlayers();
+    // Deadline status is managed by Countdown component, no need to check here
   };
 
   const handleRefresh = () => {
@@ -129,14 +109,14 @@ export default function PlayerList({ onAuthError }) {
                   <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                     <button
                       onClick={() => handleBidClick(player)}
-                      disabled={player.buyout || deadlineExpired}
+                      disabled={player.buyout || auctionExpired}
                       style={{
                         padding: "5px 10px",
-                        cursor: (player.buyout || deadlineExpired) ? "not-allowed" : "pointer",
-                        opacity: (player.buyout || deadlineExpired) ? 0.5 : 1
+                        cursor: (player.buyout || auctionExpired) ? "not-allowed" : "pointer",
+                        opacity: (player.buyout || auctionExpired) ? 0.5 : 1
                       }}
                     >
-                      {deadlineExpired ? "已截止" : player.buyout ? "已锁定" : "出价"}
+                      {auctionExpired ? "已截止" : player.buyout ? "已锁定" : "出价"}
                     </button>
                   </td>
                 </tr>

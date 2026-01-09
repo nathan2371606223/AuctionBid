@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchDeadline } from "../services/api";
 
-export default function Countdown() {
+export default function Countdown({ onExpiredChange }) {
   const [deadline, setDeadline] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
   const [expired, setExpired] = useState(false);
@@ -36,6 +36,10 @@ export default function Countdown() {
       } else {
         setDeadline(null);
         setTimeLeft(null);
+        setExpired(false);
+        if (onExpiredChange) {
+          onExpiredChange(false);
+        }
       }
     } catch (err) {
       console.error("Failed to load deadline:", err);
@@ -53,10 +57,16 @@ export default function Countdown() {
     if (diff <= 0) {
       setExpired(true);
       setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+      if (onExpiredChange) {
+        onExpiredChange(true);
+      }
       return;
     }
 
     setExpired(false);
+    if (onExpiredChange) {
+      onExpiredChange(false);
+    }
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);

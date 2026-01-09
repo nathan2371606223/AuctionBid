@@ -8,6 +8,7 @@ import { getStoredToken, setStoredToken } from "./services/api";
 function App() {
   const [tokenReady, setTokenReady] = useState(!!getStoredToken());
   const [prefillToken, setPrefillToken] = useState("");
+  const [auctionExpired, setAuctionExpired] = useState(false);
 
   // Support ?token=... to prefill
   useEffect(() => {
@@ -31,7 +32,7 @@ function App() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
       <Announcement />
-      <Countdown />
+      <Countdown onExpiredChange={setAuctionExpired} />
       <div
         style={{
           backgroundColor: "#333",
@@ -58,7 +59,7 @@ function App() {
           联赛预算
         </a>
       </div>
-      <PlayerList onAuthError={() => setTokenReady(false)} />
+      <PlayerList onAuthError={() => setTokenReady(false)} auctionExpired={auctionExpired} />
     </div>
   );
 }
