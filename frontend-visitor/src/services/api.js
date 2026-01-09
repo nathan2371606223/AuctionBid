@@ -52,3 +52,8 @@ export async function submitBid(playerId, bidTeam, bidPrice) {
   });
   return res.data;
 }
+
+export async function fetchAnnouncement() {
+  const res = await client.get(`/announcement`);
+  return res.data;
+}

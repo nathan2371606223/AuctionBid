@@ -4,6 +4,7 @@ import ChangePassword from "./components/ChangePassword";
 import PlayerManager from "./components/PlayerManager";
 import ExportButtons from "./components/ExportButtons";
 import TokenAlerts from "./components/TokenAlerts";
+import Announcement from "./components/Announcement";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -123,6 +124,7 @@ function App() {
         </div>
       </div>
 
+      <Announcement token={token} />
       {showChangePassword ? (
         <ChangePassword token={token} onClose={() => setShowChangePassword(false)} />
       ) : activeTab === "players" ? (

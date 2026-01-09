@@ -119,6 +119,21 @@ async function runMigrations() {
     }
   }
 
+  // Create announcement table for AuctionBid
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS ab_announcement (
+      id SERIAL PRIMARY KEY,
+      content TEXT,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+  `);
+
+  // Initialize with empty announcement if none exists
+  const { rows: existingAnnouncement } = await pool.query("SELECT id FROM ab_announcement LIMIT 1");
+  if (existingAnnouncement.length === 0) {
+    await pool.query("INSERT INTO ab_announcement (content) VALUES ('')");
+  }
+
   console.log("✓ Database migrations completed");
 }
 
