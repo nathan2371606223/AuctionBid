@@ -8,8 +8,8 @@ const router = express.Router();
 // Export players with full bid history (auth required)
 router.get("/csv", authMiddleware, async (req, res) => {
   try {
-    // Get all players
-    const { rows: players } = await pool.query("SELECT * FROM ab_players ORDER BY created_at DESC");
+    // Get all players - sorted by CA descending
+    const { rows: players } = await pool.query("SELECT * FROM ab_players ORDER BY ca DESC");
 
     // Get all bid history
     const { rows: allBids } = await pool.query(

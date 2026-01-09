@@ -17,9 +17,9 @@ router.get("/", optionalAuth, async (req, res) => {
     const { rows: countRows } = await pool.query("SELECT COUNT(*)::int as total FROM ab_players");
     const total = countRows[0]?.total || 0;
 
-    // Get paginated data
+    // Get paginated data - sorted by CA descending
     const { rows } = await pool.query(
-      `SELECT * FROM ab_players ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      `SELECT * FROM ab_players ORDER BY ca DESC LIMIT $1 OFFSET $2`,
       [sizeNum, offset]
     );
 
