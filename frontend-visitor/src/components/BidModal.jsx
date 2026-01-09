@@ -121,21 +121,30 @@ export default function BidModal({ player, isOpen, onClose, onBidSuccess, onAuth
             <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
               出价：
             </label>
-            <input
-              type="number"
-              value={bidPrice}
-              onChange={(e) => setBidPrice(e.target.value)}
-              placeholder={`最低: ${player.min_price}, 最高: ${player.max_price}`}
-              min={player.min_price}
-              max={player.max_price}
-              step="1"
-              required
-              style={{ width: "100%", padding: "5px" }}
-            />
-            <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
-              当前最高出价: {player.current_bid_price || "无"} | 
-              最低: {player.min_price} | 最高: {player.max_price}
-            </div>
+            {(() => {
+              const minBidPrice = player.current_bid_price && player.current_bid_price > 0 
+                ? player.current_bid_price 
+                : player.min_price;
+              return (
+                <>
+                  <input
+                    type="number"
+                    value={bidPrice}
+                    onChange={(e) => setBidPrice(e.target.value)}
+                    placeholder={`最低: ${minBidPrice}, 最高: ${player.max_price}`}
+                    min={player.min_price}
+                    max={player.max_price}
+                    step="1"
+                    required
+                    style={{ width: "100%", padding: "5px" }}
+                  />
+                  <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
+                    当前最高出价: {player.current_bid_price || "无"} | 
+                    最低: {player.min_price} | 最高: {player.max_price}
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           {message.text && (
