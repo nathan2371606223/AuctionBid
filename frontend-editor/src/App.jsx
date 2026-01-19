@@ -9,12 +9,16 @@ import DeadlineManager from "./components/DeadlineManager";
 import { setTokenExpiredHandler } from "./services/api";
 
 function App() {
-  // Initialize token from localStorage directly (like LeagueBudget does)
-  const [token, setToken] = useState(() => localStorage.getItem("token") || null);
+  const [token, setToken] = useState(null);
   const [activeTab, setActiveTab] = useState("players");
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+    if (savedToken) {
+      setToken(savedToken);
+    }
+    
     // Set up token expiration handler
     setTokenExpiredHandler(() => {
       setToken(null);
@@ -36,12 +40,9 @@ function App() {
     // Check token on window focus (for same-tab navigation)
     const handleFocus = () => {
       const currentToken = localStorage.getItem("token");
-      setToken((prevToken) => {
-        if (currentToken !== prevToken) {
-          return currentToken || null;
-        }
-        return prevToken;
-      });
+      if (currentToken !== token) {
+        setToken(currentToken || null);
+      }
     };
     
     window.addEventListener("storage", handleStorageChange);
@@ -52,7 +53,7 @@ function App() {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("focus", handleFocus);
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, [token]);
 
   const handleLogin = (newToken) => {
     setToken(newToken);
