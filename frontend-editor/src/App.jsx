@@ -9,16 +9,12 @@ import DeadlineManager from "./components/DeadlineManager";
 import { setTokenExpiredHandler } from "./services/api";
 
 function App() {
-  const [token, setToken] = useState(null);
+  // Initialize token from localStorage directly (like LeagueBudget does)
+  const [token, setToken] = useState(() => localStorage.getItem("token") || null);
   const [activeTab, setActiveTab] = useState("players");
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    if (savedToken) {
-      setToken(savedToken);
-    }
-    
     // Set up token expiration handler
     setTokenExpiredHandler(() => {
       setToken(null);
