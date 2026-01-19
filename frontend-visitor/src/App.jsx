@@ -6,10 +6,12 @@ import Countdown from "./components/Countdown";
 import { getStoredToken, setStoredToken } from "./services/api";
 
 function App() {
-  // Check for admin token (JWT) first, then team token
-  const adminToken = localStorage.getItem("token"); // JWT token from editor login
-  const teamToken = getStoredToken(); // Team token
-  const [tokenReady, setTokenReady] = useState(!!(adminToken || teamToken));
+  const [tokenReady, setTokenReady] = useState(() => {
+    // Check for admin token (JWT) first, then team token
+    const adminToken = localStorage.getItem("token");
+    const teamToken = getStoredToken();
+    return !!(adminToken || teamToken);
+  });
   const [prefillToken, setPrefillToken] = useState("");
   const [auctionExpired, setAuctionExpired] = useState(false);
 
@@ -29,11 +31,12 @@ function App() {
       const currentTeamToken = getStoredToken();
       const shouldBeReady = !!(currentAdminToken || currentTeamToken);
       
-      // Update tokenReady state if it changed
-      if (shouldBeReady !== tokenReady) {
-        setTokenReady(shouldBeReady);
-      }
+      // Always update to ensure we have the latest state
+      setTokenReady(shouldBeReady);
     };
+
+    // Initial check
+    checkAdminToken();
 
     // Check on storage change (when token is added/removed in another tab)
     const handleStorageChange = (e) => {
@@ -54,7 +57,7 @@ function App() {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [tokenReady]);
+  }, []); // Run once on mount, then rely on events
 
   const handleValidated = (token) => {
     setStoredToken(token);
