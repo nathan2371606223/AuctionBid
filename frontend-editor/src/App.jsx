@@ -40,9 +40,12 @@ function App() {
     // Check token on window focus (for same-tab navigation)
     const handleFocus = () => {
       const currentToken = localStorage.getItem("token");
-      if (currentToken !== token) {
-        setToken(currentToken || null);
-      }
+      setToken((prevToken) => {
+        if (currentToken !== prevToken) {
+          return currentToken || null;
+        }
+        return prevToken;
+      });
     };
     
     window.addEventListener("storage", handleStorageChange);
@@ -53,7 +56,7 @@ function App() {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [token]);
+  }, []); // Empty dependency array - only run once on mount
 
   const handleLogin = (newToken) => {
     setToken(newToken);

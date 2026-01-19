@@ -14,13 +14,18 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
-      // Check if it's a token expiration error
+      // Check if it's a token expiration error - be more specific
       const message = error.response?.data?.message || "";
-      if (message.includes("过期") || message.includes("未授权") || message.includes("登录")) {
-        // Clear token and notify app
-        localStorage.removeItem("token");
-        if (onTokenExpired) {
-          onTokenExpired();
+      // Only remove token if it's explicitly a token/auth error, not just any 401/403
+      if (message.includes("过期") || message.includes("未授权") || message.includes("登录") || 
+          message.includes("token") || message.includes("Token") || message.includes("认证")) {
+        // Only clear if we actually have a token (avoid clearing on login failures)
+        const currentToken = localStorage.getItem("token");
+        if (currentToken) {
+          localStorage.removeItem("token");
+          if (onTokenExpired) {
+            onTokenExpired();
+          }
         }
       }
     }
