@@ -6,7 +6,10 @@ import Countdown from "./components/Countdown";
 import { getStoredToken, setStoredToken } from "./services/api";
 
 function App() {
-  const [tokenReady, setTokenReady] = useState(!!getStoredToken());
+  // Check for admin token (JWT) first, then team token
+  const adminToken = localStorage.getItem("token"); // JWT token from editor login
+  const teamToken = getStoredToken(); // Team token
+  const [tokenReady, setTokenReady] = useState(!!(adminToken || teamToken));
   const [prefillToken, setPrefillToken] = useState("");
   const [auctionExpired, setAuctionExpired] = useState(false);
 
@@ -19,10 +22,74 @@ function App() {
     }
   }, []);
 
+  // Listen for admin token removal (when user logs out from editor site)
+  useEffect(() => {
+    const checkAdminToken = () => {
+      const currentAdminToken = localStorage.getItem("token");
+      const currentTeamToken = getStoredToken();
+      // If admin token was removed and no team token, require authentication
+      if (!currentAdminToken && !currentTeamToken && tokenReady) {
+        setTokenReady(false);
+      }
+    };
+
+    // Check on storage change (when token is removed in another tab)
+    const handleStorageChange = (e) => {
+      if (e.key === "token" && e.newValue === null) {
+        checkAdminToken();
+      }
+    };
+
+    // Check on window focus (catch cases where storage events don't fire)
+    const handleFocus = () => {
+      checkAdminToken();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [tokenReady]);
+
   const handleValidated = (token) => {
     setStoredToken(token);
     setTokenReady(true);
   };
+
+  // Listen for admin token removal (when user logs out from editor site)
+  useEffect(() => {
+    const checkAdminToken = () => {
+      const currentAdminToken = localStorage.getItem("token");
+      const currentTeamToken = getStoredToken();
+      // If admin token was removed and no team token, require authentication
+      if (!currentAdminToken && !currentTeamToken && tokenReady) {
+        setTokenReady(false);
+      }
+    };
+
+    // Check on storage change (when token is removed in another tab)
+    const handleStorageChange = (e) => {
+      if (e.key === "token" && e.newValue === null) {
+        checkAdminToken();
+      }
+    };
+
+    // Check on window focus (catch cases where storage events don't fire)
+    const handleFocus = () => {
+      checkAdminToken();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [tokenReady]);
 
   // When token missing, show gate
   if (!tokenReady) {
