@@ -24,10 +24,36 @@ function App() {
       setToken(null);
     });
     
+    // Listen for token changes from other modules/tabs
+    const handleStorageChange = (e) => {
+      if (e.key === "token") {
+        if (e.newValue) {
+          // Token was set in another tab/module
+          setToken(e.newValue);
+        } else {
+          // Token was removed in another tab/module
+          setToken(null);
+        }
+      }
+    };
+    
+    // Check token on window focus (for same-tab navigation)
+    const handleFocus = () => {
+      const currentToken = localStorage.getItem("token");
+      if (currentToken !== token) {
+        setToken(currentToken || null);
+      }
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("focus", handleFocus);
+    
     return () => {
       setTokenExpiredHandler(null);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [token]);
 
   const handleLogin = (newToken) => {
     setToken(newToken);

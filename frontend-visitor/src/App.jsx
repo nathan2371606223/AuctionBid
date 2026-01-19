@@ -22,20 +22,22 @@ function App() {
     }
   }, []);
 
-  // Listen for admin token removal (when user logs out from editor site)
+  // Listen for admin token changes (when user logs in/out from editor site)
   useEffect(() => {
     const checkAdminToken = () => {
       const currentAdminToken = localStorage.getItem("token");
       const currentTeamToken = getStoredToken();
-      // If admin token was removed and no team token, require authentication
-      if (!currentAdminToken && !currentTeamToken && tokenReady) {
-        setTokenReady(false);
+      const shouldBeReady = !!(currentAdminToken || currentTeamToken);
+      
+      // Update tokenReady state if it changed
+      if (shouldBeReady !== tokenReady) {
+        setTokenReady(shouldBeReady);
       }
     };
 
-    // Check on storage change (when token is removed in another tab)
+    // Check on storage change (when token is added/removed in another tab)
     const handleStorageChange = (e) => {
-      if (e.key === "token" && e.newValue === null) {
+      if (e.key === "token") {
         checkAdminToken();
       }
     };
@@ -58,38 +60,6 @@ function App() {
     setStoredToken(token);
     setTokenReady(true);
   };
-
-  // Listen for admin token removal (when user logs out from editor site)
-  useEffect(() => {
-    const checkAdminToken = () => {
-      const currentAdminToken = localStorage.getItem("token");
-      const currentTeamToken = getStoredToken();
-      // If admin token was removed and no team token, require authentication
-      if (!currentAdminToken && !currentTeamToken && tokenReady) {
-        setTokenReady(false);
-      }
-    };
-
-    // Check on storage change (when token is removed in another tab)
-    const handleStorageChange = (e) => {
-      if (e.key === "token" && e.newValue === null) {
-        checkAdminToken();
-      }
-    };
-
-    // Check on window focus (catch cases where storage events don't fire)
-    const handleFocus = () => {
-      checkAdminToken();
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("focus", handleFocus);
-    };
-  }, [tokenReady]);
 
   // When token missing, show gate
   if (!tokenReady) {
